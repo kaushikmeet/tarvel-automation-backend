@@ -120,3 +120,27 @@ exports.searchPackages = async (req, res) => {
   }
 
 }
+
+exports.getRecommended = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 3;
+    const packages = await PackageService.getRecommendedPackages(limit);
+    res.status(200).json(packages);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getOne = async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+    const pkg = idOrSlug.match(/^[0-9a-fA-F]{24}$/) 
+                ? await Package.findById(idOrSlug).populate("destination")
+                : await PackageService.getBySlug(idOrSlug);
+
+    if (!pkg) return res.status(404).json({ message: "Package not found" });
+    res.status(200).json(pkg);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

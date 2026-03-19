@@ -49,3 +49,14 @@ exports.searchPackages = async (query) => {
   return await Package.find(filter)
 
 }
+
+exports.getRecommendedPackages = async (limit = 3) => {
+  return await Package.find({ isActive: true })
+    .populate("destination", "name city country")
+    .sort({ createdAt: -1 }) 
+    .limit(limit);
+};
+
+exports.getBySlug = async (slug) => {
+  return await Package.findOne({ slug, isActive: true }).populate("destination");
+};

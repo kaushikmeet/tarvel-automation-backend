@@ -6,6 +6,9 @@ const auth = require("../../core/middleware/auth.middleware")
 const role = require("../../core/middleware/role.middleware");
 const upload = require("../../core/middleware/upload.middleware");
 
+// public routes
+router.get("/recommended", controller.getRecommended);
+router.get("/:idOrSlug", controller.getOne);
 
 router.post(
     "/",

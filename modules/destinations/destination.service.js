@@ -66,3 +66,10 @@ exports.searchDestinations = async (query) => {
   return await Destination.find(filter)
 
 }
+
+exports.getPopularDestinations = async (limit = 6) => {
+  return await Destination.find({ isActive: true })
+    .select("name city country images averagePrice") 
+    .sort({ createdAt: -1 }) 
+    .limit(limit);
+};

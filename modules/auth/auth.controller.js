@@ -12,14 +12,24 @@ exports.register = async (req,res)=>{
 
 }
 
-exports.login = async (req,res)=>{
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
- try{
-   const data = await service.login(req.body)
-   res.json(data)
+    // 1. Validation
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
 
- }catch(err){
-   res.status(400).json({message:err.message})
- }
+    const result = await service.login(email, password);
 
-}
+    res.status(200).json({
+      success: true,
+      data: result 
+    });
+
+  } catch (error) {
+    console.error("LOGIN ERROR:", error.message);
+    res.status(401).json({ message: error.message || "Invalid credentials" });
+  }
+};

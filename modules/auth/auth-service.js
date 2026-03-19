@@ -22,32 +22,17 @@ exports.register = async (data) => {
   return user
 }
 
-exports.login = async ({ email, password }) => {
+exports.login = async (email, password) => {
+  // 1. Find user
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) throw new Error("User not found");
 
-  const user = await User.findOne({ email })
+  // 2. Compare password
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) throw new Error("Invalid credentials");
 
-  if (!user) throw new Error("User not found")
+  // 3. Generate token
+  const token = jwt.sign({ id: user._id, role: user.role }, "SECRET", { expiresIn: "1d" });
 
-  const valid = await bcrypt.compare(password, user.password)
-
-  if (!valid) throw new Error("Invalid password")
-
-  const token = jwt.sign(
-    {
-      id: user._id,
-      role: user.role
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  )
-
-  return {
-    token,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    }
-  }
-}
+  return { token, user };
+};

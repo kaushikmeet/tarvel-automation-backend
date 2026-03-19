@@ -104,3 +104,16 @@ exports.searchDestinations = async (req, res) => {
   }
 
 }
+
+exports.getPopular = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6;
+    const destinations = await DestinationService.getPopularDestinations(limit);
+    res.status(200).json(destinations);
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+};

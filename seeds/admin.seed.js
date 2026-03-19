@@ -1,43 +1,52 @@
-require("dotenv").config()
+require("dotenv").config();
+const mongoose = require("mongoose");
+const User = require("../modules/users/user.model");
 
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs")
+async function seedDatabase() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("Connected to MongoDB for seeding...");
 
-const User = require("../modules/users/user.model")
+    const seedData = [
+      {
+        name: "Super Admin",
+        email: "admin@travel.com",
+        password: "admin123",
+        role: "admin",
+      },
+      {
+        name: "Travel Agent",
+        email: "agent@travel.com",
+        password: "agent123", 
+        role: "agent",
+      },
+      {
+        name: "John Doe",
+        email: "user@travel.com",
+        password: "user123", 
+        role: "user",
+      }
+    ];
 
-async function seedAdmin(){
+    for (const data of seedData) {
+      const existing = await User.findOne({ email: data.email });
 
-  try{
-
-    await mongoose.connect(process.env.MONGO_URI)
-
-    const existing = await User.findOne({ email: "admin@travel.com" })
-
-    if(existing){
-      console.log("Admin already exists")
-      process.exit()
+      if (existing) {
+        console.log(`Skipping: ${data.role} (${data.email}) already exists.`);
+      } else {
+        // User.create() triggers the pre('save') hook in your schema
+        await User.create(data);
+        console.log(`Created: ${data.role} account (${data.email})`);
+      }
     }
 
-    const password = await bcrypt.hash("admin123", 10)
+    console.log("Seeding completed successfully!");
+    process.exit(0);
 
-    const admin = await User.create({
-      name: "Super Admin",
-      email: "admin@travel.com",
-      password: password,
-      role: "admin"
-    })
-
-    console.log("Admin created:", admin.email)
-
-    process.exit()
-
-  }catch(err){
-
-    console.error(err)
-    process.exit(1)
-
+  } catch (err) {
+    console.error("Seeding failed:", err);
+    process.exit(1);
   }
-
 }
 
-seedAdmin()
+seedDatabase();

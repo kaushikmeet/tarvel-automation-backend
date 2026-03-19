@@ -6,7 +6,7 @@ const auth = require("../../core/middleware/auth.middleware")
 const role = require("../../core/middleware/role.middleware")
 
 
-router.post("/", auth, role("admin"), controller.createUser)
+router.post("/", auth, role("admin"), controller.register)
 
 router.get("/", auth, role("admin"), controller.getUsers)
 

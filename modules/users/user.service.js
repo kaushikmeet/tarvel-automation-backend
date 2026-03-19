@@ -1,26 +1,18 @@
 const User = require("./user.model")
-const bcrypt = require("bcryptjs")
 
-exports.createUser = async (data) => {
+exports.findUserByEmail = async (email) => {
+  return await User.findOne({ email });
+};
 
-  const hashedPassword = await bcrypt.hash(data.password, 10)
+exports.createUser = async (userData) => {
+  const user = new User(userData);
+  return await user.save();
+};
 
-  const user = await User.create({
-    name: data.name,
-    email: data.email,
-    password: hashedPassword,
-    role: data.role || "user",
-    phone: data.phone
-  })
-
-  return user
-}
 
 
 exports.getUsers = async () => {
-
-  return await User.find().select("-password")
-
+  return await User.find().select("-password");
 }
 
 
