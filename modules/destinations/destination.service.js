@@ -73,3 +73,7 @@ exports.getPopularDestinations = async (limit = 6) => {
     .sort({ createdAt: -1 }) 
     .limit(limit);
 };
+
+exports.getBySlug = async (slug) => {
+  return await Destination.findOne({ slug, isActive: true });
+};

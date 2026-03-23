@@ -3,12 +3,20 @@ const router = require("express").Router()
 const controller = require("./destination.controller")
 
 const auth = require("../../core/middleware/auth.middleware")
-const role = require("../../core/middleware/role.middleware")
+const role = require("../../core/middleware/role.middleware");
+const upload = require("../../core/middleware/upload.middleware");
 
 router.get("/popular", controller.getPopular);
 router.get("/:id", controller.getDestinationById);
+router.get("/:idOrSlug", controller.getOne);
 
-router.post("/", auth, role("admin"), controller.createDestination)
+router.post(
+    "/",
+    upload.array("images", 10), 
+    auth, 
+    role("admin"), 
+    controller.createDestination
+);
 
 router.get("/", controller.getDestinations)
 

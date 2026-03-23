@@ -117,3 +117,23 @@ exports.getPopular = async (req, res) => {
     });
   }
 };
+
+exports.getOne = async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+
+    const isId = idOrSlug.match(/^[0-9a-fA-F]{24}$/);
+
+    const desti = isId 
+      ? await Destination.findById(idOrSlug)
+      : await DestinationService.getBySlug(idOrSlug);
+
+    if (!desti) {
+      return res.status(404).json({ message: "Destination not found" });
+    }
+
+    res.status(200).json(desti);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

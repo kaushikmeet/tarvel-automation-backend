@@ -7,6 +7,11 @@ const DestinationSchema = new mongoose.Schema(
       required: true
     },
 
+    slug:{
+      type: String,
+      unique: true
+    },
+
     country: {
       type: String,
       required: true
@@ -23,9 +28,9 @@ const DestinationSchema = new mongoose.Schema(
 
     places:[
       {
-        name:[String],
-        description:[String],
-        image:[String]
+        name:String,
+        description:String,
+        image:String
       }
     ],
     
