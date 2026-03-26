@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const PackageService = require("./package.service");
 
 
@@ -20,18 +21,27 @@ const parseItinerary =(data)=>{
 // CREATE PACKAGE
 exports.createPackage = async (req, res) => {
   try {
-   const images = req.files?.map(f=> f.filename) || [];
+    const images = req.files?.map(f => f.filename) || [];
+    
+    let bodyData = { ...req.body };
 
-    const data = {
-      ...req.body,
+    if (bodyData.tags) {
+      if (typeof bodyData.tags === 'string') {
+        bodyData.tags = bodyData.tags.split(',').filter(t => t.trim() !== '');
+      }
+    } else {
+      bodyData.tags = [];
+    }
+    
+    const finalData = {
+      ...bodyData,
       images,
       itinerary: parseItinerary(req.body.itinerary)
     };
 
-    const pkg = await PackageService.createPackage(data);
-
+    const pkg = await PackageService.createPackage(finalData);
     res.status(201).json(pkg);
-    
+
   } catch (err) {
     res.status(500).json({
       message: "Error creating package",
@@ -53,15 +63,31 @@ exports.getAllPackages = async (req, res) => {
 // GET ONE
 exports.getPackageById = async (req, res) => {
   try {
-    const data = await PackageService.getPackageById(req.params.id);
+    const { id } = req.params;
 
-    if (!data) {
-      return res.status(404).json({ message: "Package not found" });
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid Package ID format" 
+      });
     }
 
-    res.json(data);
+    const data = await PackageService.getPackageById(id);
+
+    if (!data) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Package not found in database" 
+      });
+    }
+
+    res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ 
+      success: false, 
+      error: err.message 
+    });
   }
 };
 
@@ -144,3 +170,28 @@ exports.getOne = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+// exports.getPackages = async (req, res) => {
+//   try {
+//     const { category, tag, maxPrice } = req.query;
+//     let query = { isActive: true };
+
+//     // Filter by Main Category
+//     if (category) query.category = category;
+
+//     // Filter by Tags (Mongoose automatically searches inside the array)
+//     if (tag) query.tags = tag;
+
+//     // Filter by Price
+//     if (maxPrice) query.price = { $lte: Number(maxPrice) };
+
+//     const data = await Package.find(query)
+//       .populate("destination", "name city") // Join with Destination data
+//       .sort({ createdAt: -1 });
+
+//     res.json({ success: true, data });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };

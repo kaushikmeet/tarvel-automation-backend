@@ -22,10 +22,9 @@ const PackageSchema = new mongoose.Schema(
     description: String,
 
     destination: {
-      type:
-        mongoose.Schema.Types.ObjectId, 
+      type: mongoose.Schema.Types.ObjectId, 
         ref:"Destination",
-      required: true
+        required: true
     },
 
     price: {
@@ -57,7 +56,22 @@ const PackageSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
-    }
+    },
+
+    category: {
+      type: String,
+      required: true,
+      enum: ["Honeymoon", "Adventure", "Luxury", "Family", "Budget", "Solo"],
+      index: true
+    },
+    tags: [{
+      type: String,
+      enum: [
+        "Romance", "Beach", "Cultural", "Wildlife", "Wellness", "Cruise",
+        "Trekking", "Safari", "Skiing", "Diving", "Road Trip", "City Break"
+      ],
+      index: true
+    }],
   },
   {
     timestamps: true

@@ -2,15 +2,18 @@ const Destination = require("./destination.model")
 
 
 exports.createDestination = async (data) => {
+  // Safe parsing
+  if (data.places && typeof data.places === 'string') {
+    data.places = JSON.parse(data.places);
+  }
 
-  const destination = await Destination.create(data)
+  const destination = await Destination.create(data);
+  return destination;
+};
 
-  return destination
-}
 
-
-exports.getDestinations = async () => {
-
+exports.getDestinations = async (res, req) => {
+  
   return await Destination.find({ isActive: true })
 
 }
@@ -75,5 +78,7 @@ exports.getPopularDestinations = async (limit = 6) => {
 };
 
 exports.getBySlug = async (slug) => {
-  return await Destination.findOne({ slug, isActive: true });
+  return await Destination.findOne({ slug, isActive: true })
+    .populate("places")
+    .lean();           
 };
